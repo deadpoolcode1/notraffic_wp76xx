@@ -11,7 +11,7 @@ VAR_OUTPUT_IMAGE_NAME=Release16_wp76_img
 VAR_MODEM_IMAGE_NAME=leaf-data/current/wp76-modem-image/9999999_9907152_SWI9X07Y_02.37.03.00_00_GENERIC_002.095_000.spk 
 #VAR_LEGATO_IMAGE_NAME=legato-src/legato/build/wp76xx/legato.cwe
 VAR_LEGATO_IMAGE_NAME=legato.cwe
-VAR_YOCTO_IMAGE_NAME=swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/yocto_wp76xx.4k.cwe
+VAR_YOCTO_IMAGE_NAME=build_bin/tmp/deploy/images/swi-mdm9x28-wp/yocto_wp76xx.4k.cwe
 VAR_LEAF_BASE_PACKAGE=swi-wp76_6.0.0
 
 help()
@@ -32,7 +32,7 @@ help()
 
 android_signature_add() 
 {
-	ANDROID_SIGNING_DIR=swi-linux-src/build_bin/tmp/sysroots-components/x86_64/android-signing-native/usr/share/android-signing
+	ANDROID_SIGNING_DIR=build_bin/tmp/sysroots-components/x86_64/android-signing-native/usr/share/android-signing
 	local image_type=$1
 	local unsigned_image_path=$2
 	local signed_image_path=$3
@@ -66,8 +66,8 @@ sign_images_with_client_key()
  		return 1  # Exit the function with an error status
  	fi
 	#sign boot image
- 	android_signature_add boot swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.unsigned.img swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.img
- 	android_signature_add aboot swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn.unsigned swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn
+ 	android_signature_add boot build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.unsigned.img build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.img
+ 	android_signature_add aboot build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn.unsigned build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn
  	pushd .
 
 
@@ -80,11 +80,11 @@ sign_images_with_client_key()
  	fi
 	mkdir signed
 	cd signed
-	cp ../swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.img .
-	cp ../swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn .
-	cp ../swi-linux-src/build_bin/tmp/sysroots-components/x86_64/cwetool-native/usr/bin/hdrcnv hdrcnv_cwetool
-	cp ../swi-linux-src/personal_swi/files/yoctocwetool.sh .
-	cp  ../swi-linux-src/build_bin/tmp/deploy/images/swi-mdm9x28-wp/mdm9x28-image-minimal-swi-mdm9x28-wp.ubi .
+	cp ../build_bin/tmp/deploy/images/swi-mdm9x28-wp/boot-yocto-mdm9x28.4k.img .
+	cp ../build_bin/tmp/deploy/images/swi-mdm9x28-wp/appsboot.mbn .
+	cp ../build_bin/tmp/sysroots-components/x86_64/cwetool-native/usr/bin/hdrcnv hdrcnv_cwetool
+	cp ../personal_swi/files/yoctocwetool.sh .
+	cp  ../build_bin/tmp/deploy/images/swi-mdm9x28-wp/mdm9x28-image-minimal-swi-mdm9x28-wp.ubi .
 	echo "SWI9X07Y_02.37.10.00" > version_file.txt
 	./yoctocwetool.sh -pid '9X28' -platform '9X28' -o yocto.cwe -fbt appsboot.mbn -vfbt version_file.txt -kernel boot-yocto-mdm9x28.4k.img -vkernel version_file.txt -rfs mdm9x28-image-minimal-swi-mdm9x28-wp.ubi -vrfs version_file.txt
 	popd
@@ -111,7 +111,7 @@ create_secureboot_signkey()
 	else
     		echo "No files matching '$file_pattern' found, so none were removed."
 	fi
-	swi-linux-src/build_bin/tmp/sysroots-components/x86_64/android-signing-native/usr/share/android-signing/make_key testkey  '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
+	build_bin/tmp/sysroots-components/x86_64/android-signing-native/usr/share/android-signing/make_key testkey  '/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=android@android.com'
 	mkdir keys
 	mv testkey.* keys	
 }
