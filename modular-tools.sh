@@ -130,22 +130,6 @@ onetime_setup_env()
 	leaf setup -p swi-wp76_6.0.0	
 }
 
-apply_patches()
-{
-	echo "apply all Attenti patches on top of Yocto and Sierra"
-	git apply  --directory='swi-linux-src/meta-swi/'  attenti_patches/kernel/magic-version-check-disabled.patch
-	git apply  --directory='swi-linux-src/meta-swi/'  attenti_patches/meta-swi/syslog_config.patch
-	git apply  --directory='swi-linux-src/meta-swi/'  attenti_patches/meta-swi/wifi_brcm.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/brcm-wifi-support.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/free-console-uart-for-mcu.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/gpio-initial-state-configure.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/v2_1-related-GPIO-default-change.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/leds-lp5569.patch
-	git apply  --directory='swi-linux-src/kernel/'  attenti_patches/kernel/st_lsm6dso-IMU-gyro-accelerometer.patch
-	git apply  --directory='swi-linux-src/meta-swi/'  attenti_patches/meta-swi/wifi-modified-to-support-mini-1P-needs.patch
-	git apply  --directory='swi-linux-src/meta-swi/'  attenti_patches/meta-swi/wifi-activtion-delay.patch
-}
-
 leaf_setup()
 {
 	echo "setup leaf envirunment, neads to be done at initial installation, and every time we switch leaf version"
@@ -164,13 +148,7 @@ yocto_download()
 
 _yocto_build()
 {
-	echo "Build Yocto, notice to issue this only after downloading and patching"
-	pushd .
-	#leaf shell
-	cp swi-linux-src/personal_swi/files/build.sh swi-linux-src/meta-swi/build.sh
-	cd swi-linux-src/
 	make
-	popd
 }
 
 legato_download()
