@@ -11,15 +11,15 @@ VAR_OUTPUT_IMAGE_NAME=Release16_wp76_img
 VAR_MODEM_IMAGE_NAME=leaf-data/current/wp76-modem-image/9999999_9907152_SWI9X07Y_02.37.03.00_00_GENERIC_002.095_000.spk 
 #VAR_LEGATO_IMAGE_NAME=legato-src/legato/build/wp76xx/legato.cwe
 VAR_LEGATO_IMAGE_NAME=legato.cwe
-VAR_YOCTO_IMAGE_NAME=build_bin/tmp/deploy/images/swi-mdm9x28-wp/yocto_wp76xx.4k.cwe
+VAR_YOCTO_IMAGE_NAME=signed/yocto.cwe
 VAR_LEAF_BASE_PACKAGE=swi-wp76_6.0.0
 
 help()
 {
-	echo "_make_image_binary - make single update image from built sources, located under build_image"
+	echo "make_image_binary - make single update image from built sources, located under build_image"
 	echo "leaf_setup - setup leaf envirunment, neads to be done at initial installation, and every time we switch leaf version"
 	echo "yocto_download - gets latest Yocto sources from Sierra"
-	echo "_yocto_build - Build Yocto, notice to issue this only after downloading and patching"
+	echo "yocto_build - Build Yocto, notice to issue this only after downloading and patching"
 	echo "legato_download - gets latest Legato sources from Sierra"
 	echo "flash_image - flash release image to local device"
 	echo "view_build_details - show image details" 
@@ -85,8 +85,10 @@ sign_images_with_client_key()
 	cp ../build_bin/tmp/sysroots-components/x86_64/cwetool-native/usr/bin/hdrcnv hdrcnv_cwetool
 	cp ../personal_swi/files/yoctocwetool.sh .
 	cp  ../build_bin/tmp/deploy/images/swi-mdm9x28-wp/mdm9x28-image-minimal-swi-mdm9x28-wp.ubi .
+	cp ../personal_swi/files/swi-key-cwe.sh .
 	echo "SWI9X07Y_02.37.10.00" > version_file.txt
 	./yoctocwetool.sh -pid '9X28' -platform '9X28' -o yocto.cwe -fbt appsboot.mbn -vfbt version_file.txt -kernel boot-yocto-mdm9x28.4k.img -vkernel version_file.txt -rfs mdm9x28-image-minimal-swi-mdm9x28-wp.ubi -vrfs version_file.txt
+	./swi-key-cwe.sh ../keys/testkey.x509.pem 9X28 RFS0	
 	popd
 }
 
@@ -146,9 +148,29 @@ yocto_download()
 }
 
 
-_yocto_build()
+append_layer()
 {
-	make
+#!/bin/bash
+
+# Path to the bblayers.conf file
+CONF_FILE="build_bin/conf/bblayers.conf"
+
+# Get the current working directory as the base path
+BASE_PATH=$(pwd)
+
+# Check if personal_swi/ is already in the file
+if grep -q "${BASE_PATH}/personal_swi \\\\" "$CONF_FILE"; then
+    echo "personal_swi/ is already in the BBLAYERS."
+else
+    # Add personal_swi/ to the BBLAYERS
+    sed -i "/BBLAYERS ?= \"/a \ \ ${BASE_PATH}/personal_swi \\\\" "$CONF_FILE"
+    echo "Added personal_swi/ to the BBLAYERS."
+fi
+}
+yocto_build()
+{
+append_layer
+make
 }
 
 legato_download()
@@ -157,7 +179,7 @@ legato_download()
 	leaf getsrc swi-legato
 }
 
-_make_image_binary()
+make_image_binary()
 {
 	echo "building single update image from already built images"
 	#leaf shell
