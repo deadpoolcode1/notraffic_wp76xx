@@ -25,6 +25,9 @@ make
 
 notice to download fdt2 and required drivers from Sierra site
 
+# flash image Linux
+
+./fwdwl-litehostx86_64 -f "./" -s Release16_wp76_img.spk  -d /dev/ttyUSB1 -c QMI
 
 # accesing device
 
