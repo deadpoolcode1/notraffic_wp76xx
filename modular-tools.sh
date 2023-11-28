@@ -14,6 +14,25 @@ VAR_LEGATO_IMAGE_NAME=legato.cwe
 VAR_YOCTO_IMAGE_NAME=signed/yocto.cwe
 VAR_LEAF_BASE_PACKAGE=swi-wp76_6.0.0
 
+sanity_fix()
+{
+        file="poky/meta/conf/sanity.conf"
+        line='INHERIT += "sanity"'
+        modified_line='#INHERIT += "sanity"'
+
+        if grep -q "$line" "$file"; then
+                echo "The line '$line' exists in the file."
+                if grep -q "$modified_line" "$file"; then
+                        echo "The line '$modified_line' already exists and is commented out."
+                else
+                        sed -i "s/$line/$modified_line/g" "$file"
+                        echo "The line '$line' has been modified to '$modified_line'."
+                fi
+        else
+                echo "The line '$line' does not exist in the file."
+        fi
+}
+
 help()
 {
 	echo "make_image_binary - make single update image from built sources, located under build_image"
@@ -195,6 +214,15 @@ flash_image()
 		break
 	fi
 	swiflash -p $VAR_PORT_NAME -m "WP76XX" -i $VAR_OUTPUT_IMAGE_NAME.spk
+}
+
+flash_image_fwdwl()
+{
+	sudo systemctl stop ModemManager
+	pushd .
+	cd personal_swi/files/
+	./fwdwl-litehostx86_64 -f "./" -s ../Release16_wp76_img.spk  -d /dev/ttyUSB1 -p /dev/cdc-wdm1 -c QMI -m 4
+	popd
 }
 
 view_build_details()
