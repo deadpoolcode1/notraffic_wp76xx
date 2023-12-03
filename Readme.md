@@ -68,3 +68,12 @@ pins are named mapped to:
 
 all YOcto related modifications are done under layer "personal_swi"
 
+#overriding default openssl and openvpn
+
+notice it's not a simple task since that have many dependancies, however I prepared the infrastructure for that
+
+loog under personal_swi , for files: *.bbappend_option 
+
+in case you will modify the extention to *.bbappend it will override existing recipies
+
+notice to open the *.bbappend_option and setup per the needed version 
