@@ -77,3 +77,10 @@ loog under personal_swi , for files: *.bbappend_option
 in case you will modify the extention to *.bbappend it will override existing recipies
 
 notice to open the *.bbappend_option and setup per the needed version 
+
+#flash via ssh
+
+    scp -oHostKeyAlgorithms=+ssh-rsa Release16_wp76_img.spk root@192.168.2.2:/tmp/
+    ssh -oHostKeyAlgorithms=+ssh-rsa root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
+
+or use: . modular-tools.sh flash_image_via_ssh 
