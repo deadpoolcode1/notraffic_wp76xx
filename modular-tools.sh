@@ -46,6 +46,7 @@ help()
 	echo "onetime_setup_env - install needed tools for building yocto, do one time only" 
 	echo "create_secureboot_signkey - generate key and store in library keys"
 	echo "sign_images_with_client_key - signes images with client key"
+	echo "flash_image_via_ssh - download the image to device via ssh and updates the image"
 	echo "notice that all commands starting with _ needs to be run from the leaf shell"
 }
 
@@ -202,7 +203,13 @@ make_image_binary()
 {
 	echo "building single update image from already built images"
 	#leaf shell
-	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_LEGATO_IMAGE_NAME $VAR_YOCTO_IMAGE_NAME -r
+	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_YOCTO_IMAGE_NAME -r
+}
+
+flash_image_via_ssh()
+{
+	scp Release16_wp76_img.spk root@192.168.2.2:/tmp/
+	ssh root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
 }
 
 flash_image()
