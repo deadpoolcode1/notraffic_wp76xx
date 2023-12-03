@@ -11,7 +11,7 @@ VAR_OUTPUT_IMAGE_NAME=Release16_wp76_img
 VAR_MODEM_IMAGE_NAME=leaf-data/current/wp76-modem-image/9999999_9907152_SWI9X07Y_02.37.03.00_00_GENERIC_002.095_000.spk 
 #VAR_LEGATO_IMAGE_NAME=legato-src/legato/build/wp76xx/legato.cwe
 VAR_LEGATO_IMAGE_NAME=legato.cwe
-VAR_YOCTO_IMAGE_NAME=signed/yocto.cwe
+VAR_YOCTO_IMAGE_NAME=build_bin/tmp/deploy/images/swi-mdm9x28-wp/yocto_wp76xx.4k.cwe
 VAR_LEAF_BASE_PACKAGE=swi-wp76_6.0.0
 
 sanity_fix()
@@ -203,7 +203,7 @@ make_image_binary()
 {
 	echo "building single update image from already built images"
 	#leaf shell
-	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_YOCTO_IMAGE_NAME -r
+	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_LEGATO_IMAGE_NAME $VAR_YOCTO_IMAGE_NAME -r
 }
 
 flash_image_via_ssh()
