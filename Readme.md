@@ -84,3 +84,13 @@ notice to open the *.bbappend_option and setup per the needed version
     ssh -oHostKeyAlgorithms=+ssh-rsa root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
 
 or use: . modular-tools.sh flash_image_via_ssh 
+
+#issues with initial build
+
+some steps we did to resolve build issues:
+
+sudo rm /bin/sh
+
+sudo ln -s /bin/bash /bin/sh 
+
+sudo apt-get install chrpath gawk texinfo
