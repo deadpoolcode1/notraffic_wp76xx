@@ -94,3 +94,15 @@ sudo rm /bin/sh
 sudo ln -s /bin/bash /bin/sh 
 
 sudo apt-get install chrpath gawk texinfo
+
+sudo apt-get install openjdk-8-jdk
+
+git config --global --add safe.directory /home/notraffic-jig/dev/wpb/poky
+
+git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-openembedded
+
+git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-swi
+
+git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-swi-extras
+
+git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-swi-extras/common
