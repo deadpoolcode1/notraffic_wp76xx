@@ -6,6 +6,7 @@ LIC_FILES_CHKSUM = "file://${WORKDIR}/COPYRIGHT;md5=349c872e0066155e1818b7869388
 SRC_URI = "file://skeleton \
 	   file://skeleton_test.c \
 	   file://COPYRIGHT \
+	   file://start_all.sh \
 	   "
 
 do_compile () {
@@ -24,6 +25,9 @@ do_install () {
 
 	install -d ${D}${sbindir}
 	install -m 0755 ${WORKDIR}/skeleton-test ${D}${sbindir}/
+    	install -d ${D}${bindir}/
+    	install -m 0777 ${WORKDIR}/start_all.sh  ${D}${bindir}/
+
 }
 
 RDEPENDS_${PN} = "initscripts"

@@ -186,6 +186,7 @@ else
     sed -i "/BBLAYERS ?= \"/a \ \ ${BASE_PATH}/personal_swi \\\\" "$CONF_FILE"
     echo "Added personal_swi/ to the BBLAYERS."
 fi
+cp personal_swi/files/startlegato.sh meta-swi/common/recipes-legato/legato-init/legato-init/startlegato.sh
 }
 yocto_build()
 {
