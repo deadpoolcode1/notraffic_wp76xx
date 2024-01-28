@@ -107,12 +107,15 @@ git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-swi-ex
 
 git config --global --add safe.directory /home/notraffic-jig/dev/wpb/meta-swi-extras/common
 
-#secureboot update
+#create keys
+. modular-tools.sh create_secureboot_signkey
 
-create directory and keys as following: 
+create directory and keys as following:
 
 pk8_key="keys/testkey.pk8"
 x509_key="keys/testkey.x509.pem"
+
+#secureboot update
 
 run this:
 
@@ -123,3 +126,10 @@ resulting image is at:
 signed/yocto.cwe
 
 . modular-tools.sh sign_images_with_client_key
+
+#decrypt keys and read
+
+openssl x509 -in keys/testkey.x509.pem -noout -text
+
+openssl x509 -pubkey -noout -in keys/testkey.x509.pem  > keys/pubkey.pem
+
