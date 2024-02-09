@@ -1,30 +1,40 @@
-From 520f931cce3e47d54b9c46588ded1915487653dc Mon Sep 17 00:00:00 2001
-From: "ilan.ganor" <ilan@kamacode.com>
-Date: Thu, 16 Nov 2023 15:23:09 +0200
-Subject: [PATCH] added patch for power managment and initial GPIO settings
+From bfca167356adef07b2bca2288a63a8b6fceb2d75 Mon Sep 17 00:00:00 2001
+From: Ilan Ganor <ilan@kamacode.com>
+Date: Fri, 9 Feb 2024 15:08:35 +0200
+Subject: [PATCH] personal gpio
 
 ---
- arch/arm/boot/dts/qcom/mdm9607.dtsi |  12 +++
- arch/arm/configs/mdm9607_defconfig  |   1 +
- drivers/misc/Kconfig                |   5 ++
- drivers/misc/Makefile               |   1 +
- drivers/misc/personal_pm.c          | 131 ++++++++++++++++++++++++++++
- include/dt-bindings/gpio/gpio.h     |   4 +-
- 6 files changed, 153 insertions(+), 1 deletion(-)
+ arch/arm/configs/mdm9607_defconfig    |   1 +
+ arch/arm64/boot/dts/qcom/mdm9607.dtsi |  12 +++
+ drivers/misc/Kconfig                  |   4 +
+ drivers/misc/Makefile                 |   1 +
+ drivers/misc/personal_pm.c            | 131 ++++++++++++++++++++++++++
+ include/dt-bindings/gpio/gpio.h       |   3 +
+ 6 files changed, 152 insertions(+)
  create mode 100644 drivers/misc/personal_pm.c
 
-diff --git a/arch/arm/boot/dts/qcom/mdm9607.dtsi b/arch/arm/boot/dts/qcom/mdm9607.dtsi
-index 8dda1c21db3d..57d7584b9d86 100644
---- a/arch/arm/boot/dts/qcom/mdm9607.dtsi
-+++ b/arch/arm/boot/dts/qcom/mdm9607.dtsi
-@@ -101,12 +101,24 @@
- #include "mdm9607-bus.dtsi"
- #include "mdm9607-coresight.dtsi"
- #include "mdm9607-pm.dtsi"
+diff --git a/arch/arm/configs/mdm9607_defconfig b/arch/arm/configs/mdm9607_defconfig
+index e320a8a5c71c..e861fcdc2741 100644
+--- a/arch/arm/configs/mdm9607_defconfig
++++ b/arch/arm/configs/mdm9607_defconfig
+@@ -454,3 +454,4 @@ CONFIG_IMA_TRUSTED_KEYRING=y
+ 
+ # Sierra USB
+ CONFIG_SIERRA_USB_COMP=y
++CONFIG_PERSONAL_PM=y
+diff --git a/arch/arm64/boot/dts/qcom/mdm9607.dtsi b/arch/arm64/boot/dts/qcom/mdm9607.dtsi
+index f05b18f23cea..dfbd2431ad69 100644
+--- a/arch/arm64/boot/dts/qcom/mdm9607.dtsi
++++ b/arch/arm64/boot/dts/qcom/mdm9607.dtsi
+@@ -18,6 +18,7 @@
+ #include <dt-bindings/regulator/qcom,rpm-smd-regulator.h>
+ #include <dt-bindings/spmi/spmi.h>
+ #include <dt-bindings/iio/qcom,spmi-vadc.h>
 +#include <dt-bindings/gpio/gpio.h>
  
- &soc {
- 	#address-cells = <1>;
+ #define MHZ_TO_MBPS(mhz, w) ((mhz * 1000000 * w) / (1024 * 1024))
+ #define BW_OPP_ENTRY(mhz, w) opp-mhz {opp-hz = /bits/ 64 <MHZ_TO_MBPS(mhz, w)>;}
+@@ -110,6 +111,17 @@
  	#size-cells = <1>;
  	ranges;
  
@@ -42,39 +52,29 @@ index 8dda1c21db3d..57d7584b9d86 100644
  	intc: interrupt-controller@b000000 {
  		compatible = "qcom,msm-qgic2";
  		interrupt-controller;
-diff --git a/arch/arm/configs/mdm9607_defconfig b/arch/arm/configs/mdm9607_defconfig
-index bae8ba852181..0c6c191b44c6 100644
---- a/arch/arm/configs/mdm9607_defconfig
-+++ b/arch/arm/configs/mdm9607_defconfig
-@@ -642,3 +642,4 @@ CONFIG_EVM_EXTRA_SMACK_XATTRS=y
- # set it to 'y'.
- CONFIG_IMA_FORCE_MEASUREMENT=y
- # SWISTOP
-+CONFIG_PERSONAL_PM=y
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index b687acbc738b..08b66bdf44b4 100755
+index 3c6ecc0b15e6..c0835a436c77 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -612,6 +612,11 @@ config SIERRA_KS_IF
- 	  keys to userland to applications with proper permissions.
- #SWISTOP
+@@ -605,6 +605,10 @@ config SIERRA_TZDEV
+ 
+ 	  If in doubt, say N.
  
 +config PERSONAL_PM
 +        tristate "personal power mangment driver"
 +        help
 +          driver handling named GPIO and initial status settings.
-+
+ 
  source "drivers/misc/c2port/Kconfig"
  source "drivers/misc/eeprom/Kconfig"
- source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 09fb92c69f0f..3da17627fd2e 100755
+index c7c51d59a7bf..9c1a17d2ffb3 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -74,3 +74,4 @@ obj-$(CONFIG_MEMORY_STATE_TIME) += memory_state_time.o
- obj-$(CONFIG_SIERRA_TZDEV) 		+= sierra_tzdev.o
- obj-$(CONFIG_SIERRA)			+= sierra_tcxo_clk.o sierra_safe_pwr_remove.o
- obj-$(CONFIG_SIERRA_KS_IF)	+= sierra_ks_if.o
+@@ -92,3 +92,4 @@ $(obj)/lkdtm_rodata_objcopy.o: $(obj)/lkdtm_rodata.o FORCE
+ obj-$(CONFIG_OKL4_USER_VIPC)    += okl4-vipc.o
+ obj-$(CONFIG_OKL4_GUEST)        += okl4-panic.o
+ obj-$(CONFIG_OKL4_LINK_SHBUF)    += okl4-link-shbuf.o
 +obj-$(CONFIG_PERSONAL_PM)      += personal_pm.o
 diff --git a/drivers/misc/personal_pm.c b/drivers/misc/personal_pm.c
 new file mode 100644
@@ -214,14 +214,13 @@ index 000000000000..f66d49030031
 +MODULE_DESCRIPTION("Personal Station Board Driver");
 +MODULE_LICENSE("GPL");
 diff --git a/include/dt-bindings/gpio/gpio.h b/include/dt-bindings/gpio/gpio.h
-index e6b1e0a808ae..0394800f4106 100644
+index 32dd58a3d13c..cc235fe315a7 100644
 --- a/include/dt-bindings/gpio/gpio.h
 +++ b/include/dt-bindings/gpio/gpio.h
-@@ -11,5 +11,7 @@
+@@ -33,4 +33,7 @@
+ #define GPIO_SLEEP_MAINTAIN_VALUE 0
+ #define GPIO_SLEEP_MAY_LOOSE_VALUE 8
  
- #define GPIO_ACTIVE_HIGH 0
- #define GPIO_ACTIVE_LOW 1
--
 +#define GPIOF_IN 1
 +#define GPIOF_OUT_INIT_LOW 0
 +#define GPIOF_OUT_INIT_HIGH 2
