@@ -204,7 +204,7 @@ make_image_binary()
 {
 	echo "building single update image from already built images"
 	#leaf shell
-	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_LEGATO_IMAGE_NAME $VAR_YOCTO_IMAGE_NAME -r
+	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c  $VAR_YOCTO_IMAGE_NAME -r
 }
 
 flash_image_via_ssh()
