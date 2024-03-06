@@ -187,6 +187,7 @@ else
     echo "Added personal_swi/ to the BBLAYERS."
 fi
 cp personal_swi/files/startlegato.sh meta-swi/common/recipes-legato/legato-init/legato-init/startlegato.sh
+cp personal_swi/files/loginNagger meta-swi/meta-swi-mdm9xxx/recipes-core/initscripts/files/loginNagger
 }
 yocto_build()
 {

@@ -1,0 +1,336 @@
+#!/bin/sh
+
+source /etc/run.env
+
+DONT_NAG_FILE=/mnt/flash/config/system/etc/noLoginNag
+TOOLS_PATH=/legato/systems/current/bin
+CALLED_AS=$0
+
+PASSWORD_SET=false
+
+PASSWD_EXTRA_PARAMS=""
+REMOUNT_REQUIRED=${SWI_ERR}
+
+CheckRet()
+{
+    RETVAL=$?
+
+    if [ $RETVAL -ne 0 ]; then
+        exit $RETVAL
+    fi
+}
+
+
+DontNag()
+{
+    # if the nagger is run as the login shell, we don't need to create the
+    # noLoginNag file
+    if [[ "$CALLED_AS" != "/usr/sbin/loginNagger" ]]; then
+        mkdir -p $( dirname $DONT_NAG_FILE ) &&
+        touch $DONT_NAG_FILE
+    fi
+}
+
+# Remount required nagger files.
+RemountNaggerFiles()
+{
+    local ret=${SWI_OK}
+
+    if [ ${REMOUNT_REQUIRED} -eq ${SWI_OK} ] ; then
+        umount /etc/shadow
+        mount --bind ${FLASH_MOUNTPOINT_RFS}/etc/shadow /etc/shadow
+    fi
+
+    return ${ret}
+}
+
+DisablePasswordLogin()
+{
+    echo ""
+
+    while true; do
+        echo "You are about to disable password-based authentication for root user account."
+        echo "Are you sure [y/N]?"
+        read -r choice
+
+        case $choice in
+            [nN] | "" ) return 1;;
+            [yY] )
+                passwd ${PASSWD_EXTRA_PARAMS} -l root
+                CheckRet
+                RemountNaggerFiles;
+                echo "Password-based authentication for root account disabled."
+                break;;
+
+            * )
+                ;;
+        esac
+    done
+}
+
+
+DisableUartForConsole()
+{
+    if [ ! -x "$TOOLS_PATH/uartMode" ]; then
+        echo "Unable to disable UART $1, uartMode is missing."
+        return 1
+    fi
+
+    # Get the uart mode.
+    mode="$($TOOLS_PATH/uartMode get $1)"
+    CheckRet
+
+    # See if the uart is currently used for /dev/console.
+    echo $mode | grep "/dev/console" > /dev/null 2>&1
+
+    if [ $? = 0 ]; then
+        # Disable the uart.
+        $TOOLS_PATH/uartMode set $1 disable > /dev/null 2>&1
+        CheckRet
+    fi
+}
+
+
+DisableConsole()
+{
+    echo ""
+
+    while true; do
+        echo "You are about to disable console access for all users."
+        echo "Are you sure [y/N]?"
+        read -r choice
+
+        case $choice in
+            [nN] | "" ) return 1;;
+            [yY] )
+                if [ -f /etc/securetty ]; then
+                    echo > /etc/securetty
+                else
+                    touch /etc/securetty
+                fi
+
+                # Disable both uart 1 and 2 for use as /dev/console.
+                DisableUartForConsole 1
+                DisableUartForConsole 2
+
+                echo "Console access changes will take effect AFTER reboot."
+                break;;
+
+            * )
+                ;;
+        esac
+    done
+}
+
+
+EnableConsolePassword()
+{
+    passwd ${PASSWD_EXTRA_PARAMS}
+    CheckRet
+    RemountNaggerFiles;
+
+    PASSWORD_SET=true
+}
+
+
+LocalAccess()
+{
+    echo "";
+    echo "Configure local console login."
+
+    if [ $PASSWORD_SET = true ]; then
+        while true; do
+            echo "  Disable console access [Y/n]?"
+
+            read -r choice
+            case $choice in
+                [yY] | "" )
+                    DisableConsole
+                    if [ $? -eq 0 ]; then
+                        DontNag; break
+                    fi
+                    ;;
+                [nN] ) DontNag; break;;
+
+                * );;
+            esac
+        done
+    else
+        while true; do
+            echo "  1) Disable console access (the most secure)"
+            echo "  2) Disable password-based authentication for root user account"
+            echo "     but leave the console for debug messages (less secure)"
+            echo "     WARNING: This will disable password-based authentication for"
+            echo "     root user account completely (even over ssh)."
+            echo "  3) Enable password-based authentication for root user account"
+
+            read -r choice
+            case $choice in
+                [1] )
+                   DisableConsole
+                   if [ $? -eq 0 ]; then
+                       DontNag; break
+                   fi
+                   ;;
+                [2] )
+                   DisablePasswordLogin
+                   if [ $? -eq 0 ]; then
+                       DontNag; break
+                   fi
+                   ;;
+                [3] ) EnableConsolePassword; DontNag; break;;
+
+                * );;
+            esac
+        done
+    fi
+}
+
+
+DisableSshPasswords()
+{
+    echo "";
+    echo "You are about to disable password-based authentication via ssh for all users."
+
+    while true; do
+        echo "Are you sure you can successfully login using ssh keys [y/N]?"
+        read -r choice
+
+        case $choice in
+            [nN] | "" ) return 1;;
+            [yY] )
+                  echo "DROPBEAR_EXTRA_ARGS=\"-s -g\"" >> /etc/default/dropbear
+                  /etc/init.d/dropbear restart
+                  break
+                  ;;
+
+            * ) ;;
+        esac
+    done
+}
+
+
+ConfigureSshKey()
+{
+    echo "";
+    echo "Please run the Legato configtargetssh tool from the host."
+    echo "Or manually setup ssh keys using ssh-keygen and copy keys to target."
+
+    while true; do
+        echo "Let me know when you're done."
+        echo "  1) Done setting up my ssh keys"
+        echo "  2) Cancel"
+
+        read -r choice
+        case $choice in
+            [1] )
+               DisableSshPasswords
+               if [ $? -eq 0 ]; then
+                   LocalAccess; break
+               fi
+               ;;
+            [2] ) SelectCredMethod; break;;
+
+            * );;
+        esac
+    done
+}
+
+
+SetupPassword()
+{
+    passwd ${PASSWD_EXTRA_PARAMS}
+    CheckRet
+    RemountNaggerFiles;
+
+    PASSWORD_SET=true
+
+    LocalAccess
+}
+
+
+SelectCredMethod()
+{
+    echo "";
+    echo "It is strongly recommended to setup credentials for remote login."
+
+    while true; do
+        echo "Please select one of the following options:"
+        echo "  1) Setup ssh keys and disable passwords-based authentication via ssh"
+        echo "     (the most secure)"
+        echo "  2) Setup password (better than nothing)"
+
+        read -r choice
+        case $choice in
+            [1] ) ConfigureSshKey; break;;
+            [2] ) SetupPassword; break;;
+
+            * );;
+        esac
+    done
+}
+
+# Could nagger be running at all?
+NaggerCouldRun()
+{
+    local ret=${SWI_ERR}
+
+    if is_etc_writable; then
+        # Nagger could run.
+        return ${SWI_OK}
+    fi
+
+    if is_flash_mountpoint_writable; then
+        # Nagger could run.
+        REMOUNT_REQUIRED=${SWI_OK}
+        return ${SWI_OK}
+    fi
+
+    # Nagger could not run
+    swi_log "Warning: Login nagger could not run."
+    return ${ret}
+}
+
+# Set extra parameters for password utility.
+SetExtraPasswdParams()
+{
+    local ret=${SWI_OK}
+
+    # If /etc is not writable, we'll need some extra params for password utility.
+    if ! is_etc_writable; then
+        if is_flash_mountpoint_writable; then
+            PASSWD_EXTRA_PARAMS="-p ${FLASH_MOUNTPOINT_RFS}"
+        fi
+    fi
+
+    return ${ret}
+}
+
+# Check if a password has already been set. If so, don't nag.
+CheckIfPasswordSet()
+{
+    PASSWORD_STATUS="$(passwd --status root)"
+
+    # The second argument of the password status says if
+    # a password has been set
+    PASSWORD_SET="$(echo "$PASSWORD_STATUS" | cut -d' ' -f2)"
+    if [[ "$PASSWORD_SET" == "P" ]]; then
+        DontNag;
+    fi
+}
+
+#
+# main execution starts here
+#
+
+if NaggerCouldRun; then
+	echo "Proceed"
+fi
+
+# if the nagger is invoked as the default login shell, we need to change login
+# shell then start a bash login session
+if [[ "$CALLED_AS" = "/usr/sbin/loginNagger" ]]; then
+    chsh -s /bin/sh
+
+    /bin/sh --login "$@"
+fi
