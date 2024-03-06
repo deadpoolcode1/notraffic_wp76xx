@@ -41,7 +41,7 @@ case "$1" in
         mount -o bind $LEGATO_MNT /legato
 
         test -x $LEGATO_START && $LEGATO_START
-	/usr/bin/start_all.sh&
+	#/usr/bin/start_all.sh&
         ;;
 
     stop)

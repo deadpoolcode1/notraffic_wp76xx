@@ -7,7 +7,7 @@
 # https://docs.legato.io/latest/basicBuild.html
 # https://github.com/mangOH/mangOH
 # https://github.com/legatoproject/legato-af/blob/master/README.md
-VAR_OUTPUT_IMAGE_NAME=Release16_wp76_img
+VAR_OUTPUT_IMAGE_NAME=Release17_wp76_img
 VAR_MODEM_IMAGE_NAME=leaf-data/current/wp76-modem-image/9999999_9907152_SWI9X07Y_02.37.03.00_00_GENERIC_002.095_000.spk 
 #VAR_LEGATO_IMAGE_NAME=legato-src/legato/build/wp76xx/legato.cwe
 VAR_LEGATO_IMAGE_NAME=legato.cwe
