@@ -187,7 +187,6 @@ else
     echo "Added personal_swi/ to the BBLAYERS."
 fi
 cp personal_swi/files/startlegato.sh meta-swi/common/recipes-legato/legato-init/legato-init/startlegato.sh
-cp personal_swi/files/loginNagger meta-swi/meta-swi-mdm9xxx/recipes-core/initscripts/files/loginNagger
 }
 yocto_build()
 {
@@ -205,7 +204,7 @@ make_image_binary()
 {
 	echo "building single update image from already built images"
 	#leaf shell
-	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c  $VAR_YOCTO_IMAGE_NAME -r
+	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_LEGATO_IMAGE_NAME $VAR_YOCTO_IMAGE_NAME -r
 }
 
 flash_image_via_ssh()
