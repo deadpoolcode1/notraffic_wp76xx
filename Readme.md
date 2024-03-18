@@ -24,6 +24,9 @@ contains meta-layer for additions and modifications to the default Yocto build
     sudo ln -s /bin/bash /bin/sh
     sudo apt -y install chrpath gawk texinfo openjdk-8-jdk python-pip
     sudo apt -y cpp diffstat g++ gcc build-essential
+    ### Install swicwe
+    wget https://downloads.sierrawireless.com/tools/swicwe/swicwe_latest.deb -O /tmp/swicwe_latest.deb
+    sudo apt-get install /tmp/swicwe_latest.deb
 
 
 # build image
