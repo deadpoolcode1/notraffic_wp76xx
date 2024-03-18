@@ -203,6 +203,7 @@ legato_download()
 make_image_binary()
 {
 	echo "building single update image from already built images"
+	cp personal_swi/legato.cwe .
 	#leaf shell
 	swicwe -o $VAR_OUTPUT_IMAGE_NAME.spk -c $VAR_LEGATO_IMAGE_NAME $VAR_YOCTO_IMAGE_NAME -r
 }
