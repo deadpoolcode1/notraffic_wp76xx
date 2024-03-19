@@ -1,6 +1,13 @@
 # personal SWI
 contains meta-layer for additions and modifications to the default Yocto build
 
+# Build station requirements
+1. OS: Ubuntu 18.04 (tested on 18.04). Should also work on 20.04, will not work on 22.04
+2. CPU: No hard limit but intel i5  or better is preferred 
+3. RAM: minimum 8GB
+4. Disc available: minimum: 80GB 
+
+
 # initial code pull
 
 1. Accept legato licence online. See: https://docs.legato.io/latest/toolsGitHub.html
@@ -45,7 +52,7 @@ notice to download fdt2 and required drivers from Sierra site
 
 # flash image Linux
 
-    sudo personal_swi/files//fwdwl-litehostx86_64 -f "./" -s Release16_wp76_img.spk  -d /dev/ttyUSB1 -p /dev/cdc-wdm1 -c QMI -m 4
+    sudo personal_swi/files//fwdwl-litehostx86_64 -f "./" -s Release17_wp76_img.spk  -d /dev/ttyUSB1 -p /dev/cdc-wdm1 -c QMI -m 4
 
 Or:
 
@@ -105,10 +112,16 @@ all Yocto related modifications are done under layer "personal_swi"
 
 # flash via ssh
 
-    scp -oHostKeyAlgorithms=+ssh-rsa Release16_wp76_img.spk root@192.168.2.2:/tmp/
+    scp -oHostKeyAlgorithms=+ssh-rsa Release17_wp76_img.spk root@192.168.2.2:/tmp/
     ssh -oHostKeyAlgorithms=+ssh-rsa root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
 
 or use: `. modular-tools.sh flash_image_via_ssh`
+
+# Hard flash to factory reset
+1. Requires Windows PC
+2. Install sierra driver, and reboot afterwards. https://source.sierrawireless.com/resources/airprime/software/airprime-em_mc-series-windows-drivers-qmi-build-latest-release/
+3. Install Sierra FDT. https://source.sierrawireless.com/resources/airprime/software/fdt/#sthash.jTelv4Yp.dpbs
+4. Connect WP76** device to the windows PC over usb and flash your firmware using FDT. E.G: `.\fdt2.exe -f .\Release17_wp76_img.spk`
 
 # create keys
     . modular-tools.sh create_secureboot_signkey
