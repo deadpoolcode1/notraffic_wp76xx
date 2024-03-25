@@ -16,30 +16,36 @@ contains meta-layer for additions and modifications to the default Yocto build
  
 
     mkdir ~/wp76xx_yocto3
-   
+
     cd ~/wp76xx_yocto3
-   
+
     curl https://storage.googleapis.com/git-repo-downloads/repo-1 > ~/bin/repo
-   
+
     chmod a+x ~/bin/repo
 
-   python3 ~/.bin/repo init -u ssh://git@github.com/legatoproject/manifest -m mdm9x28/tags/SWI9X07Y_03.01.07.00/linux.xml -g default,-cache,proprietary ; python3 ~/.bin/repo sync   
+    python3 ~/.bin/repo init -u ssh://git@github.com/legatoproject/manifest -m mdm9x28/tags/SWI9X07Y_03.01.07.00/linux.xml -g default,-cache,proprietary ; python3 ~/.bin/repo sync   
 
-   git clone git@github.com:deadpoolcode1/notraffic_wp76xx.git -b yocto3 personal_swi
-   
-   cp personal_swi/modular-tools.sh .
-   
-   sudo git config --system --add safe.directory '*'
+    git clone git@github.com:deadpoolcode1/notraffic_wp76xx.git -b yocto3 personal_swi
 
-4. Install extra build tools
+    cp personal_swi/modular-tools.sh .
+
+    sudo git config --system --add safe.directory '*'
+
+3. Install extra build tools
 
 
     sudo rm /bin/sh
+
     sudo ln -s /bin/bash /bin/sh
+
     sudo apt -y install chrpath gawk texinfo openjdk-8-jdk python-pip
+
     sudo apt -y cpp diffstat g++ gcc build-essential
+
     ### Install swicwe
+
     wget https://downloads.sierrawireless.com/tools/swicwe/swicwe_latest.deb -O /tmp/swicwe_latest.deb
+
     sudo apt-get install /tmp/swicwe_latest.deb
 
 
@@ -53,7 +59,7 @@ contains meta-layer for additions and modifications to the default Yocto build
 
 # flash image to device
 
-./fdt2.exe Release16_wp76_img.spk
+    ./fdt2.exe -f Release17_wp76_img.spk
 
 notice to download fdt2 and required drivers from Sierra site
 
@@ -69,7 +75,7 @@ Or:
 
 # accessing device
 
-ssh root@192.168.2.2
+ssh root@10.5.0.4
 root
 
 # reading ADC
@@ -119,8 +125,8 @@ all Yocto related modifications are done under layer "personal_swi"
 
 # flash via ssh
 
-    scp -oHostKeyAlgorithms=+ssh-rsa Release17_wp76_img.spk root@192.168.2.2:/tmp/
-    ssh -oHostKeyAlgorithms=+ssh-rsa root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
+    scp -oHostKeyAlgorithms=+ssh-rsa Release17_wp76_img.spk root@10.5.0.4:/tmp/
+    ssh -oHostKeyAlgorithms=+ssh-rsa root@10.5.0.4 '/legato/systems/current/bin/fwupdate download /tmp/Release17_wp76_img.spk'
 
 or use: `. modular-tools.sh flash_image_via_ssh`
 
@@ -155,3 +161,10 @@ signed/yocto.cwe
     openssl x509 -in keys/testkey.x509.pem -noout -text
     
     openssl x509 -pubkey -noout -in keys/testkey.x509.pem  > keys/pubkey.pem
+
+
+# Operational tasks
+
+	# Configuring sim card instructions
+    cm data apn wbdata
+    cm data connect

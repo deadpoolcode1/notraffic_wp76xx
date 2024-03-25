@@ -210,8 +210,8 @@ make_image_binary()
 
 flash_image_via_ssh()
 {
-	scp Release16_wp76_img.spk root@192.168.2.2:/tmp/
-	ssh root@192.168.2.2 '/legato/systems/current/bin/fwupdate download /tmp/Release16_wp76_img.spk'
+	scp Release17_wp76_img.spk root@10.5.0.4:/tmp/
+	ssh root@10.5.0.4 '/legato/systems/current/bin/fwupdate download /tmp/Release17_wp76_img.spk'
 }
 
 flash_image()
@@ -230,7 +230,7 @@ flash_image_fwdwl()
 	sudo systemctl stop ModemManager
 	pushd .
 	cd personal_swi/files/
-	./fwdwl-litehostx86_64 -f "./" -s ../Release16_wp76_img.spk  -d /dev/ttyUSB1 -p /dev/cdc-wdm1 -c QMI -m 4
+	./fwdwl-litehostx86_64 -f "./" -s ../Release17_wp76_img.spk  -d /dev/ttyUSB1 -p /dev/cdc-wdm1 -c QMI -m 4
 	popd
 }
 
