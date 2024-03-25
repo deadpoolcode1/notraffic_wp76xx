@@ -117,7 +117,7 @@ all Yocto related modifications are done under layer "personal_swi"
 
     make dev
     bitbake -c clean openvpn
-    bitbake -c cleanstate openvpn
+    bitbake -c cleansstate openvpn
     bitbake -c compile openvpn
 
 5. Build the yocto image again
